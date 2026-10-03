@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const waitForTransactionReceipt = vi.fn();
 vi.mock("@/lib/genlayer/client", () => ({ createReadClient: () => ({ waitForTransactionReceipt }) }));
 
-import { consensusDecision, executionDecision, waitForSuccessfulFinality } from "@/lib/contract/finality";
+import { consensusDecision, executionDecision, isSuccessfulExecution, waitForSuccessfulFinality } from "@/lib/contract/finality";
 
 describe("GenLayer finality", () => {
   beforeEach(() => waitForTransactionReceipt.mockReset());
@@ -14,6 +14,14 @@ describe("GenLayer finality", () => {
     expect(consensusDecision(receipt)).toBe("MAJORITY_AGREE");
     expect(executionDecision(receipt)).toBe("FINISHED_WITH_RETURN");
     await expect(waitForSuccessfulFinality(`0x${"1".repeat(64)}`)).resolves.toMatchObject({ ok: true });
+  });
+
+  it("accepts the SUCCESS execution name returned by current Studionet receipts", async () => {
+    const receipt = { statusName: "FINALIZED", resultName: "MAJORITY_AGREE", txExecutionResultName: "SUCCESS" };
+    waitForTransactionReceipt.mockResolvedValue(receipt);
+    expect(executionDecision(receipt)).toBe("SUCCESS");
+    expect(isSuccessfulExecution("SUCCESS")).toBe(true);
+    await expect(waitForSuccessfulFinality(`0x${"5".repeat(64)}`)).resolves.toMatchObject({ ok: true });
   });
 
   it("rejects FINALIZED plus NO_MAJORITY", async () => {
