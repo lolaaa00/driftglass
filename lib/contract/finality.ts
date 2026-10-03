@@ -39,6 +39,10 @@ export function executionDecision(receipt: unknown): string | null {
   return candidate?.[1].toUpperCase() ?? null;
 }
 
+export function isSuccessfulExecution(result: string | null): boolean {
+  return result === "FINISHED_WITH_RETURN" || result === "SUCCESS";
+}
+
 export async function waitForSuccessfulFinality(hash: string): Promise<FinalityResult> {
   const client = createReadClient();
   const wait = client.waitForTransactionReceipt as unknown as (args: ReceiptArgs) => Promise<GenLayerTransaction>;
@@ -69,7 +73,7 @@ export async function waitForSuccessfulFinality(hash: string): Promise<FinalityR
     return { ok: false, kind: "CONSENSUS", message: `Finalized without successful consensus (${consensus ?? "unknown consensus result"})`, receipt };
   }
   const execution = executionDecision(receipt);
-  if (execution !== "FINISHED_WITH_RETURN") {
+  if (!isSuccessfulExecution(execution)) {
     return { ok: false, kind: "EXECUTION", message: `Consensus agreed but execution did not succeed (${execution ?? "unknown execution result"})`, receipt };
   }
   return { ok: true, receipt };
