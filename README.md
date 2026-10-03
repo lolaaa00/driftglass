@@ -56,7 +56,7 @@ npm run verify
 
 The release gate runs ESLint, TypeScript, frontend tests, Direct Mode tests, static contract checks, the GenVM linter, network and secret scans, and the production build.
 
-The UI reports a write as successful only after `FINALIZED`, `MAJORITY_AGREE`, `FINISHED_WITH_RETURN`, and an authoritative state reread. Submission or `ACCEPTED` alone is never success.
+The UI reports a write as successful only after `FINALIZED`, `MAJORITY_AGREE`, a successful execution result (`FINISHED_WITH_RETURN` or Studionet's `SUCCESS`), and an authoritative state reread. Submission or `ACCEPTED` alone is never success.
 
 ## Deployment
 
