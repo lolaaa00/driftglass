@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Minus, Plus, ScanText } from "lucide-react";
 import { WalletGate } from "@/components/WalletGate";
 import { useWallet } from "@/lib/wallet/WalletProvider";
@@ -10,6 +11,7 @@ import { listCreatorWatchIds, readWatch, submitCreateDraft } from "@/lib/contrac
 const MIN_INTERVAL = 300;
 
 function ComposeForm() {
+  const router = useRouter();
   const wallet = useWallet();
   const transaction = useTransaction();
   const [subject, setSubject] = useState("");
@@ -61,7 +63,7 @@ function ComposeForm() {
         const record = await readWatch(createdId);
         return record.creator.toLowerCase() === wallet.account!.toLowerCase() && record.lifecycle === "DRAFT";
       },
-      onConfirmed: () => window.location.assign(`/record/${createdId}`),
+      onConfirmed: () => router.push(`/record/${createdId}`),
     });
   };
 

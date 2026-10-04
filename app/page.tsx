@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { ArrowRight, Search, ShieldCheck, Split, TimerReset } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { listWatchIds, readWatch } from "@/lib/contract/adapter";
 import type { WatchRecord } from "@/lib/contract/types";
 import { RecordSummary } from "@/components/RecordSummary";
 import { DRIFTGLASS_CONTRACT_ADDRESS } from "@/lib/contract/address";
 
 export default function HomePage() {
+  const router = useRouter();
   const [records, setRecords] = useState<WatchRecord[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(Boolean(DRIFTGLASS_CONTRACT_ADDRESS));
@@ -26,10 +28,10 @@ export default function HomePage() {
   const search = (event: FormEvent) => {
     event.preventDefault();
     const value = query.trim();
-    if (/^\d+$/.test(value)) window.location.assign(`/record/${value}`);
+    if (/^\d+$/.test(value)) router.push(`/record/${value}`);
     else {
       const match = records.find((record) => record.canonical_domain.includes(value.toLowerCase()) || record.subject.toLowerCase().includes(value.toLowerCase()));
-      if (match) window.location.assign(`/record/${match.id}`);
+      if (match) router.push(`/record/${match.id}`);
       else setError("No loaded record matches that ID, domain, or subject.");
     }
   };
