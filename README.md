@@ -74,7 +74,7 @@ The UI reports a write as successful only after `FINALIZED`, `MAJORITY_AGREE`, t
 
 ## Deployment
 
-The production frontend is live at [driftglass-lkue406nh-lolaas-projects.vercel.app](https://driftglass-lkue406nh-lolaas-projects.vercel.app/). It reads from the Studionet contract at [`0x808FddD60A7FFd16c7abcCF474A159a7E4B1b4A1`](https://explorer-studio.genlayer.com/address/0x808FddD60A7FFd16c7abcCF474A159a7E4B1b4A1).
+The production frontend is live at [driftglass-six.vercel.app](https://driftglass-six.vercel.app/). It reads from the finalized Studionet contract at [`0x462b2edA0f7A4E6E417c11b3f737496272745980`](https://explorer-studio.genlayer.com/address/0x462b2edA0f7A4E6E417c11b3f737496272745980).
 
 ```bash
 npm exec -- genlayer network set studionet

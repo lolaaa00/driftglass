@@ -1,4 +1,4 @@
-export const DRIFTGLASS_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_DRIFTGLASS_CONTRACT_ADDRESS ?? "0x808FddD60A7FFd16c7abcCF474A159a7E4B1b4A1") as `0x${string}`;
+export const DRIFTGLASS_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_DRIFTGLASS_CONTRACT_ADDRESS ?? "0x462b2edA0f7A4E6E417c11b3f737496272745980") as `0x${string}`;
 
 export function requireContractAddress(): `0x${string}` {
   if (!/^0x[a-fA-F0-9]{40}$/.test(DRIFTGLASS_CONTRACT_ADDRESS)) {

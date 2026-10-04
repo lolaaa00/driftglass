@@ -2,13 +2,32 @@
 
 Only verifiable release facts belong here.
 
-## Milestone candidate source
+## Milestone release
 
 - Branch: `main`
-- Parent commit: `f64a0aa54172a0c1c6130d562167efe9a9002c78`
+- Deployed contract source commit: `671f198ff08d807642be5698347e79cc5b99a3e7`
 - Repository contract SHA-256: `7b932cf7ed05959fdd549f521bdbdc8b14842e6b9257f9e0a8a264b57207a26d`
 - Release gate: lint, TypeScript, 11 frontend tests, 13 Direct Mode tests, static checks, GenVM lint, network scan, secret scan, and production build passed on 2026-10-04.
-- New deployment: pending. Do not submit the legacy address below as the milestone contract.
+- Production dependency audit: zero known production vulnerabilities after upgrading Next.js to `16.3.8`.
+
+## Studionet contract
+
+- Network: Studionet
+- Chain ID: `61999`
+- RPC: `https://studio.genlayer.com/api`
+- Contract address: `0x462b2edA0f7A4E6E417c11b3f737496272745980`
+- Deployment transaction: `0x7a0eb2bc64f1f58bbba3f6764709ae2e66e85d0ee22b81a84493e140286511d9`
+- Contract explorer: `https://explorer-studio.genlayer.com/address/0x462b2edA0f7A4E6E417c11b3f737496272745980`
+- Transaction explorer: `https://explorer-studio.genlayer.com/tx/0x7a0eb2bc64f1f58bbba3f6764709ae2e66e85d0ee22b81a84493e140286511d9`
+- Finality checked: `FINALIZED`, `MAJORITY_AGREE`, three `AGREE` votes, two idle validators, and GenVM execution `SUCCESS`.
+
+## Production frontend
+
+- Production URL: `https://driftglass-six.vercel.app/`
+- Vercel deployment: `dpl_Dr8HSfXA9psZeQTqpxSkNYAi3xpc`
+- Deployed frontend commit: `671f198ff08d807642be5698347e79cc5b99a3e7`
+- Configured contract: `0x462b2edA0f7A4E6E417c11b3f737496272745980`
+- Deployment status: `Ready`; the production domain was assigned and an authoritative empty-ledger read completed successfully.
 
 ## Legacy Studionet deployment
 
