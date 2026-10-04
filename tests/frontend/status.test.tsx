@@ -6,6 +6,9 @@ import type { WatchRecord } from "@/lib/contract/types";
 const watch: WatchRecord = {
   id: "1", creator: `0x${"1".repeat(40)}`, subject: "Subject", canonical_domain: "example.org",
   source_urls: ["https://example.org/policy"], clauses: ["A clause"], review_interval_seconds: 300,
+  authority_url: "https://example.org/.well-known/driftglass.json", authority_verified: true,
+  beneficiary: `0x${"2".repeat(40)}`, right_label: "Exercise a verified right", right_status: "ENFORCEABLE",
+  effective_right_status: "SUSPENDED", exercise_count: 0,
   note: "", lifecycle: "ACTIVE", assessment: "STABLE", effective_assessment: "EXPIRED",
   checkpoint_eligible: false, active_revision: 1, checkpoint_count: 1, created_at: 1, activated_at: 2,
   last_checkpoint_at: 100, last_successful_at: 100, fresh_until: 400, last_activation_result: null,

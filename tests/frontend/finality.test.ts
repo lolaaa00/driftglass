@@ -24,6 +24,27 @@ describe("GenLayer finality", () => {
     await expect(waitForSuccessfulFinality(`0x${"5".repeat(64)}`)).resolves.toMatchObject({ ok: true });
   });
 
+  it("uses the leader result and ignores cancelled idle validators", async () => {
+    const receipt = {
+      statusName: "FINALIZED",
+      resultName: "MAJORITY_AGREE",
+      consensus_data: { leader_receipt: [
+        { mode: "leader", execution_result: "SUCCESS" },
+        { mode: "validator", vote: "idle", execution_result: "ERROR", error_code: "CONSENSUS_VALIDATOR_QUORUM_REACHED" },
+      ] },
+    };
+    waitForTransactionReceipt.mockResolvedValue(receipt);
+    expect(executionDecision(receipt)).toBe("SUCCESS");
+    await expect(waitForSuccessfulFinality(`0x${"6".repeat(64)}`)).resolves.toMatchObject({ ok: true });
+  });
+
+  it("fails closed when multiple execution results exist without an identifiable leader", async () => {
+    const receipt = { statusName: "FINALIZED", resultName: "MAJORITY_AGREE", receipts: [{ execution_result: "SUCCESS" }, { execution_result: "ERROR" }] };
+    waitForTransactionReceipt.mockResolvedValue(receipt);
+    expect(executionDecision(receipt)).toBeNull();
+    await expect(waitForSuccessfulFinality(`0x${"7".repeat(64)}`)).resolves.toMatchObject({ ok: false, kind: "EXECUTION" });
+  });
+
   it("rejects FINALIZED plus NO_MAJORITY", async () => {
     waitForTransactionReceipt.mockResolvedValue({ statusName: "FINALIZED", resultName: "NO_MAJORITY", txExecutionResultName: "FINISHED_WITH_RETURN" });
     await expect(waitForSuccessfulFinality(`0x${"2".repeat(64)}`)).resolves.toMatchObject({ ok: false, kind: "CONSENSUS" });

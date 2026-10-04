@@ -1,0 +1,7 @@
+{
+  "schema": "driftglass-authority-v1",
+  "canonical_domain": "driftglass-six.vercel.app",
+  "issuer": "0x834942701bc9b5eb3f511378ac84eddea93f2c8b",
+  "beneficiary": "0x834942701bc9b5eb3f511378ac84eddea93f2c8b",
+  "policy_digest": "024b0ba32593f475bf8bc64ea7275b89f441a60da9a6d4509e981f9911425541"
+}

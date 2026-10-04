@@ -38,15 +38,15 @@ export default function HomePage() {
     <>
       <section className="hero page-shell">
         <div className="hero-copy">
-          <span className="eyebrow">Public evidence, compared over time</span>
+          <span className="eyebrow">Authority-bound promises, enforced over time</span>
           <h1>When the words stay familiar but the <em>meaning moves.</em></h1>
-          <p>Freeze the policy clauses your work depends on. GenLayer validators independently judge whether today&apos;s official sources still preserve them.</p>
+          <p>Bind a beneficiary right to an official policy. GenLayer validators independently verify the domain and evidence, then enforce whether that right may be exercised.</p>
           <div className="hero-actions"><Link className="button button-rust" href="/compose">Start a watch <ArrowRight size={18} /></Link><Link className="text-link" href="/method">Read the method</Link></div>
         </div>
         <div className="hero-note">
           <span className="note-index">FIELD NOTE 01</span>
           <p>A text diff can tell you that words changed. It cannot tell you whether a new exception weakened the protection you relied on.</p>
-          <div className="annotation">Observer-created · validator-judged · contract-recorded</div>
+          <div className="annotation">Domain-authorized · validator-judged · contract-enforced</div>
         </div>
       </section>
 
@@ -62,14 +62,14 @@ export default function HomePage() {
       </section>
 
       <section className="page-shell principle-strip">
-        <div><ShieldCheck /><strong>Verified baseline</strong><span>Clauses must first be supported by frozen public sources.</span></div>
+        <div><ShieldCheck /><strong>Verified authority</strong><span>The domain manifest and every clause must match before activation.</span></div>
         <div><Split /><strong>Clause-level judgment</strong><span>Preserved, narrowed, removed, contradicted, or unresolved.</span></div>
-        <div><TimerReset /><strong>Honest freshness</strong><span>Unavailable evidence never refreshes a record.</span></div>
+        <div><TimerReset /><strong>Enforced right</strong><span>Only a fresh, consensus-approved beneficiary right can be exercised.</span></div>
       </section>
 
       <section className="page-shell records-section">
         <div className="section-heading"><div><span className="eyebrow">Public ledger</span><h2>Recent checkpoints</h2></div><Link href="/desk">Your records <ArrowRight size={16} /></Link></div>
-        {!DRIFTGLASS_CONTRACT_ADDRESS ? <div className="empty-sheet"><h3>Deployment pending</h3><p>The product is built, but this checkout has not yet been wired to a Studionet deployment. No sample history is shown as live data.</p></div> : loading ? <div className="empty-sheet"><p>Reading contract records…</p></div> : records.length ? records.map((watch) => <RecordSummary key={watch.id} watch={watch} />) : <div className="empty-sheet"><h3>The ledger is empty</h3><p>Be the first observer to establish a verified public-policy baseline.</p><Link className="button button-ink" href="/compose">Start a watch</Link></div>}
+        {!DRIFTGLASS_CONTRACT_ADDRESS ? <div className="empty-sheet"><h3>Deployment pending</h3><p>The product is built, but this checkout has not yet been wired to a Studionet deployment. No sample history is shown as live data.</p></div> : loading ? <div className="empty-sheet"><p>Reading contract records…</p></div> : records.length ? records.map((watch) => <RecordSummary key={watch.id} watch={watch} />) : <div className="empty-sheet"><h3>The ledger is empty</h3><p>Be the first issuer to establish an authority-bound semantic guarantee.</p><Link className="button button-ink" href="/compose">Create a guarantee</Link></div>}
       </section>
     </>
   );

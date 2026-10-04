@@ -7,6 +7,16 @@ export interface SourceCommitment {
   url: string;
   content_sha256: string;
   content_length: number;
+  http_status: number;
+  coverage: "FULL" | "HTTP_ERROR" | "EMPTY" | "TOO_LARGE" | "FETCH_ERROR";
+}
+
+export type RightStatus = "PENDING" | "ENFORCEABLE" | "SUSPENDED" | "REVOKED" | "CLOSED";
+
+export interface AuthorityAttestation {
+  verified: boolean;
+  reason: string;
+  commitment: Omit<SourceCommitment, "source_index">;
 }
 
 export interface WatchRecord {
@@ -16,6 +26,13 @@ export interface WatchRecord {
   canonical_domain: string;
   source_urls: string[];
   clauses: string[];
+  authority_url: string;
+  authority_verified: boolean;
+  beneficiary: string;
+  right_label: string;
+  right_status: RightStatus;
+  effective_right_status: RightStatus;
+  exercise_count: number;
   review_interval_seconds: number;
   note: string;
   lifecycle: Lifecycle;
@@ -40,10 +57,22 @@ export interface BaselineClauseResult {
 }
 
 export interface BaselineResult {
-  outcome: "VERIFIED" | "CLAUSE_NOT_SUPPORTED" | "WRONG_SUBJECT" | "SOURCE_UNAVAILABLE" | "INCONCLUSIVE";
+  outcome: "VERIFIED" | "AUTHORITY_UNVERIFIED" | "CLAUSE_NOT_SUPPORTED" | "WRONG_SUBJECT" | "SOURCE_UNAVAILABLE" | "INCONCLUSIVE";
   clauses: BaselineClauseResult[];
   reason: string;
   sources: SourceCommitment[];
+  authority: AuthorityAttestation;
+}
+
+export interface RightExercise {
+  sequence: number;
+  watch_id: string;
+  revision: number;
+  action_digest: string;
+  right_label: string;
+  beneficiary: string;
+  at: number;
+  checkpoint_sequence: number;
 }
 
 export interface CheckpointClauseResult {
@@ -82,6 +111,9 @@ export interface DraftInput {
   canonicalDomain: string;
   sourceUrls: string[];
   clauses: string[];
+  authorityUrl: string;
+  beneficiary: string;
+  rightLabel: string;
   reviewIntervalSeconds: number;
   note: string;
 }

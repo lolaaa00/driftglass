@@ -17,6 +17,8 @@ function ComposeForm() {
   const [sources, setSources] = useState([""]);
   const [clauses, setClauses] = useState([""]);
   const [note, setNote] = useState("");
+  const [beneficiary, setBeneficiary] = useState("");
+  const [rightLabel, setRightLabel] = useState("");
   const [interval, setIntervalValue] = useState(86400);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,8 +27,9 @@ function ComposeForm() {
     setError(null);
     const cleanSources = sources.map((value) => value.trim()).filter(Boolean);
     const cleanClauses = clauses.map((value) => value.trim()).filter(Boolean);
-    if (!subject.trim() || !domain.trim() || !cleanSources.length || !cleanClauses.length) {
-      setError("Subject, canonical domain, at least one source, and at least one reliance clause are required.");
+    const boundBeneficiary = beneficiary.trim() || wallet.account || "";
+    if (!subject.trim() || !domain.trim() || !cleanSources.length || !cleanClauses.length || !rightLabel.trim() || !/^0x[a-fA-F0-9]{40}$/.test(boundBeneficiary)) {
+      setError("Subject, domain, sources, clauses, a valid beneficiary, and an enforceable right are required.");
       return;
     }
     if (!wallet.account || !wallet.provider || !wallet.correctNetwork) return;
@@ -44,6 +47,9 @@ function ComposeForm() {
         canonicalDomain: domain.trim().toLowerCase(),
         sourceUrls: cleanSources,
         clauses: cleanClauses,
+        authorityUrl: `https://${domain.trim().toLowerCase().replace(/\.$/, "")}/.well-known/driftglass.json`,
+        beneficiary: boundBeneficiary,
+        rightLabel: rightLabel.trim(),
         reviewIntervalSeconds: interval,
         note: note.trim(),
       }),
@@ -64,9 +70,11 @@ function ComposeForm() {
       <div className="compose-main">
         <section className="form-sheet">
           <span className="sheet-number">01</span>
-          <div><span className="eyebrow">Observed subject</span><h2>Name the public source</h2><p>This creates an observer record. It does not prove that you represent the organization.</p></div>
+          <div><span className="eyebrow">Authority-bound guarantee</span><h2>Name the public policy</h2><p>Activation requires a matching manifest hosted by this domain. A wallet assertion alone cannot establish authority.</p></div>
           <label>Subject name<input value={subject} onChange={(event) => setSubject(event.target.value)} maxLength={120} placeholder="Example API service" /></label>
           <label>Canonical domain<input value={domain} onChange={(event) => setDomain(event.target.value)} maxLength={253} placeholder="example.com" /><small>Enter a hostname, not a URL. Subdomains of this domain may be used below.</small></label>
+          <label>Beneficiary wallet<input value={beneficiary} onChange={(event) => setBeneficiary(event.target.value)} maxLength={42} placeholder={wallet.account ?? "0x…"} /><small>Leave blank to bind your connected wallet.</small></label>
+          <label>Enforceable right<input value={rightLabel} onChange={(event) => setRightLabel(event.target.value)} maxLength={160} placeholder="Exercise the verified data-export right" /><small>Consensus will gate this right onchain.</small></label>
         </section>
 
         <section className="form-sheet">
@@ -93,8 +101,8 @@ function ComposeForm() {
       <aside className="compose-review">
         <ScanText />
         <span className="eyebrow">Before the wallet opens</span>
-        <h3>This transaction creates a draft—not a verified record.</h3>
-        <ol><li>Contract stores your bounded draft.</li><li>You review it from the record page.</li><li>A separate activation asks validators to verify every clause.</li></ol>
+        <h3>This transaction creates a draft—not an enforceable guarantee.</h3>
+        <ol><li>Contract stores the exact policy digest.</li><li>You publish the generated manifest at <code>/.well-known/driftglass.json</code>.</li><li>Validators verify domain authority and every clause before enabling the right.</li></ol>
         {error ? <p className="form-error">{error}</p> : null}
         <button className="button button-rust full" disabled={transaction.busy}>Create draft</button>
       </aside>
@@ -103,5 +111,5 @@ function ComposeForm() {
 }
 
 export default function ComposePage() {
-  return <div className="page-shell page-top"><div className="page-intro"><span className="eyebrow">New public watch</span><h1>Establish a baseline worth returning to.</h1><p>Be exact about the source and modest about what the evidence can prove.</p></div><WalletGate><ComposeForm /></WalletGate></div>;
+  return <div className="page-shell page-top"><div className="page-intro"><span className="eyebrow">New policy guarantee</span><h1>Bind a public promise to an enforceable right.</h1><p>Domain authority, exact evidence, and the beneficiary are independently verified before enforcement.</p></div><WalletGate><ComposeForm /></WalletGate></div>;
 }

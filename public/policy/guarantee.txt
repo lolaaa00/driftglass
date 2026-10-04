@@ -1,0 +1,5 @@
+Driftglass Milestone Verification Guarantee
+
+The beneficiary may exercise the Driftglass milestone verification right while validator consensus confirms this policy remains preserved.
+
+This public guarantee is intentionally narrow. The corresponding Intelligent Contract independently verifies this complete source, the domain-controlled authority manifest, the bound issuer and beneficiary, and the exact policy digest before enabling the onchain right.
