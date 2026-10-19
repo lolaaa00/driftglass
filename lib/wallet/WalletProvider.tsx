@@ -18,19 +18,23 @@ type WalletContextValue = {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
-const parseChain = (value: unknown): number | null => {
-  if (typeof value !== "string") return null;
-  const parsed = Number.parseInt(value, 16);
+export const parseChainId = (value: unknown): number | null => {
+  if (typeof value !== "string" || !/^0x[0-9a-f]+$/i.test(value)) return null;
+  const parsed = Number.parseInt(value.slice(2), 16);
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-const firstAccount = (value: unknown): `0x${string}` | null => {
-  if (!Array.isArray(value) || typeof value[0] !== "string" || !value[0].startsWith("0x")) return null;
+export const firstAccount = (value: unknown): `0x${string}` | null => {
+  if (!Array.isArray(value) || typeof value[0] !== "string" || !/^0x[0-9a-f]{40}$/i.test(value[0])) return null;
   return value[0] as `0x${string}`;
 };
 
+function errorMessage(cause: unknown, fallback: string): string {
+  return cause instanceof Error && cause.message ? cause.message : fallback;
+}
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [provider] = useState<Eip1193Provider | null>(() => typeof window === "undefined" ? null : window.ethereum ?? null);
+  const [provider, setProvider] = useState<Eip1193Provider | null>(() => typeof window === "undefined" ? null : window.ethereum ?? null);
   const [account, setAccount] = useState<`0x${string}` | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +44,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (!injected) return;
 
     void injected.request({ method: "eth_accounts" }).then((value) => setAccount(firstAccount(value))).catch(() => undefined);
-    void injected.request({ method: "eth_chainId" }).then((value) => setChainId(parseChain(value))).catch(() => undefined);
+    void injected.request({ method: "eth_chainId" }).then((value) => setChainId(parseChainId(value))).catch(() => undefined);
 
     const onAccounts = (...args: unknown[]) => setAccount(firstAccount(args[0]));
-    const onChain = (...args: unknown[]) => setChainId(parseChain(args[0]));
-    const onDisconnect = () => setAccount(null);
+    const onChain = (...args: unknown[]) => setChainId(parseChainId(args[0]));
+    const onDisconnect = () => { setAccount(null); setChainId(null); };
     injected.on?.("accountsChanged", onAccounts);
     injected.on?.("chainChanged", onChain);
     injected.on?.("disconnect", onDisconnect);
@@ -56,16 +60,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, [provider]);
 
   const connect = useCallback(async () => {
-    if (!provider) {
+    const injected = provider ?? window.ethereum ?? null;
+    if (!injected) {
       setError("No injected EVM wallet was found. Install MetaMask, Rabby, or another EIP-1193 wallet.");
       return;
     }
+    if (injected !== provider) setProvider(injected);
     setError(null);
     try {
-      setAccount(firstAccount(await provider.request({ method: "eth_requestAccounts" })));
-      setChainId(parseChain(await provider.request({ method: "eth_chainId" })));
+      const nextAccount = firstAccount(await injected.request({ method: "eth_requestAccounts" }));
+      if (!nextAccount) throw new Error("The wallet did not return a valid EVM account.");
+      setAccount(nextAccount);
+      setChainId(parseChainId(await injected.request({ method: "eth_chainId" })));
     } catch (cause) {
-      setError((cause as Error)?.message || "Wallet connection was rejected.");
+      setError(errorMessage(cause, "Wallet connection was rejected."));
     }
   }, [provider]);
 
@@ -75,29 +83,36 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const switchToStudionet = useCallback(async () => {
-    if (!provider) throw new Error("No injected wallet available");
+    if (!provider) {
+      setError("No injected wallet is available.");
+      return;
+    }
     setError(null);
     try {
-      await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: STUDIONET.hexId }] });
-    } catch (cause) {
-      const code = (cause as { code?: number })?.code;
-      if (code !== 4902) {
-        const message = (cause as Error)?.message || "Network switch was rejected.";
-        setError(message);
-        throw cause;
+      try {
+        await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: STUDIONET.hexId }] });
+      } catch (cause) {
+        const code = (cause as { code?: number })?.code;
+        if (code !== 4902) throw cause;
+        await provider.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: STUDIONET.hexId,
+            chainName: STUDIONET.name,
+            nativeCurrency: STUDIONET.currency,
+            rpcUrls: [STUDIONET.rpcUrl],
+            blockExplorerUrls: [STUDIONET.explorerUrl],
+          }],
+        });
+        await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: STUDIONET.hexId }] });
       }
-      await provider.request({
-        method: "wallet_addEthereumChain",
-        params: [{
-          chainId: STUDIONET.hexId,
-          chainName: STUDIONET.name,
-          nativeCurrency: STUDIONET.currency,
-          rpcUrls: [STUDIONET.rpcUrl],
-          blockExplorerUrls: [STUDIONET.explorerUrl],
-        }],
-      });
+      const nextChain = parseChainId(await provider.request({ method: "eth_chainId" }));
+      setChainId(nextChain);
+      if (nextChain !== STUDIONET.id) throw new Error("The wallet did not switch to GenLayer Studionet.");
+    } catch (cause) {
+      const message = errorMessage(cause, "Network switch was rejected.");
+      setError(message);
     }
-    setChainId(parseChain(await provider.request({ method: "eth_chainId" })));
   }, [provider]);
 
   const value = useMemo<WalletContextValue>(() => ({
